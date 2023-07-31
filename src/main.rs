@@ -23,23 +23,28 @@ pub fn setup(
 	asset_server: Res<AssetServer>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-	let mesh: Handle<Mesh> = asset_server.load("SimpleGround.gltf#Mesh0/Primitive0");
-	let depth: Handle<Image> = asset_server.load("EasyGroundDepth.png");
-	let albedo: Handle<Image> = asset_server.load("EasyGroundAlbedo.png");
-	// let overlay: Handle<Image> = asset_server.load("EasyGroundOverlay.png");
-	let normal: Handle<Image> = asset_server.load("EasyGroundNormal.png");
+	let mesh = asset_server.load("SimpleGround.gltf#Mesh0/Primitive0");
+	let depth = asset_server.load("EasyGroundDepth.png");
+	let albedo = asset_server.load("EasyGroundAlbedo.png");
+	let normal = asset_server.load("EasyGroundNormal.png");
 
-	commands.spawn((PbrBundle {
-		mesh: ground.clone(),
-		material: materials.add(StandardMaterial {
-			base_color_texture: Some(albedo),
-			normal_map_texture: Some(normal),
-			depth_map: Some(depth),
-			..default()
-		}),
-		transform: Transform::from_xyz(0.0, 0.01, 0.0).with_scale(half_scale),
-		..default()
-	}, Ground));
+	commands.spawn((
+		PbrBundle {
+			mesh,
+			material: materials.add(StandardMaterial {
+				base_color_texture: Some(albedo),
+				normal_map_texture: Some(normal),
+				depth_map: Some(depth),
+				perceptual_roughness: 0.4,
+				parallax_depth_scale: 0.09,
+				parallax_mapping_method: ParallaxMappingMethod::Relief { max_steps: 4 },
+				max_parallax_layer_count: 25.0,
+				..Default::default()
+			}),
+			..Default::default()
+		},
+		Ground,
+	));
 
 	commands.spawn(DirectionalLightBundle {
 		directional_light: DirectionalLight {
@@ -47,7 +52,7 @@ pub fn setup(
 			illuminance: 25_000.0,
 			..Default::default()
 		},
-		transform: Transform::from_xyz(4.0, 8.0, 14.0).looking_at(Vec3::ZERO, Vec3::Y),
+		transform: Transform::from_xyz(20.0, 14.0, 7.0).looking_at(Vec3::ZERO, Vec3::Y),
 		..Default::default()
 	});
 
